@@ -14,10 +14,11 @@ class ImageCanvas(tk.Canvas):
         self.photo: ImageTk.PhotoImage | None = None
         self.img: np.ndarray | None = None
 
-    def update_img(self, img: np.ndarray):
+    def update_img(self, img: np.ndarray, rate: float = 1.0):
         if self.photo is not None:
             self.delete(self.img_id)
-        self.img = img
-        self.photo = ImageTk.PhotoImage(Image.fromarray(cv2.cvtColor(img, cv2.COLOR_BGR2RGB)), master=self)
+        height, width, _ = [int(shape * rate) for shape in img.shape]
+        self.img = cv2.resize(img, (width, height))
+        self.photo = ImageTk.PhotoImage(Image.fromarray(cv2.cvtColor(self.img, cv2.COLOR_BGR2RGB)), master=self)
         self.img_id = self.create_image(0, 0, anchor="nw", image=self.photo)
-        self["height"], self["width"], _ = img.shape
+        self["height"], self["width"] = height, width
